@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dracula">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat</title>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.6.0/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- client backend -->
+    <script src="index.js"></script>
+</head>
+
+<body>
+    <div class="flex w-screen h-screen flex-col">
+        <div class="flex flex-col p-8 m-auto w-screen max-w-screen-sm">
+            <h1>Enter a username: </h1>
+            <input id="usernameInputBox" type="text" placeholder="Enter a username"
+                class="mt-4 input input-bordered input-primary" />
+
+            <div class="divider my-8"></div>
+
+            <h1>Enter a meeting code: </h1>
+            <input id="roomCodeInputBox" type="text" placeholder="Enter meeting code (case-sensitive)"
+                class="mt-4 input input-bordered input-primary" />
+            <button class="mt-4 flex-none btn btn-primary" onclick="validateCode()">Create/Join room</button>
+        </div>
+    </div>
+</body>
+
+</html>

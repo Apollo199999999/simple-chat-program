@@ -1,5 +1,5 @@
 // socketio object
-const socket = io.connect("ws://localhost:8001");
+const socket = io.connect("https://simple-chat-program-server.onrender.com");
 let clientSocketId;
 
 // Retrieve socket id for this client upon connection

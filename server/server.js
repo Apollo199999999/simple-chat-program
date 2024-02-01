@@ -51,8 +51,8 @@ io.on("connection", socket => {
   let client = new Client(socket);
   clients.add(client);
 
-  // Keep track of the index of the room object that the client is currently in
-  let clientRoomIdx = 0;
+  // Keep track of the room object that the client is currently in
+  let clientRoom;
 
   // Register the client's username once we have received that event
   socket.on("registerClient", (username, roomCode) => {
@@ -67,7 +67,7 @@ io.on("connection", socket => {
       if (rooms[i].roomCode == roomCode) {
         roomExists = true;
         rooms[i].addClient(client);
-        clientRoomIdx = i;
+        clientRoom = rooms[i];
       }
     }
 
@@ -75,47 +75,47 @@ io.on("connection", socket => {
       let room = new Room(roomCode);
       room.addClient(client)
       rooms.push(room);
-      clientRoomIdx = rooms.length - 1;
+      clientRoom = room;
     }
 
     // Tell other clients in the same room that we have connected
-    rooms[clientRoomIdx].clients.forEach(c => {
+    clientRoom.clients.forEach(c => {
       if (c != client) {
         c.socket.emit("clientConnect", client.username);
       }
     })
 
     // Push existing chat history to the new client
-    rooms[clientRoomIdx].messages.push(username + " has connected.");
-    client.socket.emit("buildHistory", rooms[clientRoomIdx].messages);
-  })
+    clientRoom.messages.push(username + " has connected.");
+    client.socket.emit("buildHistory", clientRoom.messages);
+  });
 
   socket.on("msgSent", (id, message) => {
     // Assign message
     client.message = message;
 
     // Emit a msgReceived event for each socket
-    rooms[clientRoomIdx].messages.push(client.username + ": " + message);
-    rooms[clientRoomIdx].clients.forEach(c => {
+    clientRoom.messages.push(client.username + ": " + message);
+    clientRoom.clients.forEach(c => {
       c.socket.emit("msgReceived", id, client.username, client.message);
     })
   });
 
   // Handle disconnects
   socket.on("disconnect", () => {
-    rooms[clientRoomIdx].clients.forEach(c => {
+    clientRoom.clients.forEach(c => {
       c.socket.emit("clientDisconnect", client.username);
     });
 
-    rooms[clientRoomIdx].messages.push(client.username + " has disconnected.");
+    clientRoom.messages.push(client.username + " has disconnected.");
 
     // Remove client from rooms
-    rooms[clientRoomIdx].removeClient(client);
+    clientRoom.removeClient(client);
     clients.delete(client);
 
     // Remove room if applicable
-    if (rooms[clientRoomIdx].clients.length === 0) {
-      rooms.splice(rooms.indexOf(rooms[clientRoomIdx]), 1);
+    if (clientRoom.clients.length === 0) {
+      rooms.splice(rooms.indexOf(clientRoom), 1);
     }
   })
 })
